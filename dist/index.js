@@ -28911,6 +28911,29 @@ function wrappy (fn, cb) {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -28920,12 +28943,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const github_1 = __nccwpck_require__(5438);
-const core_1 = __importDefault(__nccwpck_require__(2186));
+const core = __importStar(__nccwpck_require__(2186));
 let octokit = null;
 function getOctokitSingleton() {
     if (octokit !== null) {
@@ -28935,7 +28955,7 @@ function getOctokitSingleton() {
     // The YML workflow will need to set github_token with the GitHub Secret Token
     // github_token: ${{ secrets.GITHUB_TOKEN }}
     // https://help.github.com/en/actions/automating-your-workflow-with-github-actions/authenticating-with-the-github_token#about-the-github_token-secret
-    const github_token = core_1.default.getInput('github_token');
+    const github_token = core.getInput('github_token');
     // if (!github_token) {
     //     core.setFailed('Missing github_token input.');
     //     return null;
@@ -28954,34 +28974,34 @@ function createTag(newTag, createAnnotatedTag, GITHUB_SHA, message = undefined) 
         const octokit = getOctokitSingleton();
         let annotatedTag = undefined;
         if (createAnnotatedTag) {
-            core_1.default.debug(`Creating annotated tag.`);
+            core.debug(`Creating annotated tag.`);
             annotatedTag = yield octokit.rest.git.createTag(Object.assign(Object.assign({}, github_1.context.repo), { tag: newTag, message: message !== null && message !== void 0 ? message : newTag, object: GITHUB_SHA, type: 'commit' }));
         }
-        core_1.default.debug(`Pushing new tag to the repo.`);
+        core.debug(`Pushing new tag to the repo.`);
         yield octokit.rest.git.createRef(Object.assign(Object.assign({}, github_1.context.repo), { ref: `refs/tags/${newTag}`, sha: annotatedTag ? annotatedTag.data.sha : GITHUB_SHA }));
     });
 }
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         const { GITHUB_SHA } = process.env;
-        const commitSha = core_1.default.getInput('commit_sha');
+        const commitSha = core.getInput('commit_sha');
         const commitRef = commitSha || GITHUB_SHA;
         if (!commitRef) {
-            core_1.default.setFailed('Missing commit_sha or GITHUB_SHA.');
+            core.setFailed('Missing commit_sha or GITHUB_SHA.');
             return;
         }
-        const tag_name = core_1.default.getInput('tag');
+        const tag_name = core.getInput('tag');
         if (!tag_name) {
-            core_1.default.setFailed('Missing tag input.');
+            core.setFailed('Missing tag input.');
             return;
         }
-        const annotated_tag = core_1.default.getInput('annotated_tag') == 'true';
-        const message = core_1.default.getInput('message');
+        const annotated_tag = core.getInput('annotated_tag') == 'true';
+        const message = core.getInput('message');
         if (annotated_tag && !message) {
-            core_1.default.notice('Annotated tag was requested but no message was provided.');
+            core.notice('Annotated tag was requested but no message was provided.');
         }
         if (!annotated_tag && message) {
-            core_1.default.warning('Message was provided but annotated tag was not requested.');
+            core.warning('Message was provided but annotated tag was not requested.');
         }
         yield createTag(tag_name, annotated_tag, commitRef, message);
     });
