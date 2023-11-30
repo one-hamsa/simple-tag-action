@@ -3,6 +3,10 @@ name: Simple Tag
 description: Simple Tagign With Github Octokit
 
 inputs:
+  github_token:
+    description: "Github Token"
+    required: true
+
   tag:
     description: "Tag"
     required: true

@@ -9,16 +9,16 @@ function getOctokitSingleton() {
     }
 
     // This should be a token with access to your repository scoped in as a secret.
-    // The YML workflow will need to set myToken with the GitHub Secret Token
-    // myToken: ${{ secrets.GITHUB_TOKEN }}
+    // The YML workflow will need to set github_token with the GitHub Secret Token
+    // github_token: ${{ secrets.GITHUB_TOKEN }}
     // https://help.github.com/en/actions/automating-your-workflow-with-github-actions/authenticating-with-the-github_token#about-the-github_token-secret
-    const myToken = core.getInput('myToken');
-    if (!myToken) {
-        core.setFailed('Missing myToken input.');
+    const github_token = core.getInput('github_token');
+    if (!github_token) {
+        core.setFailed('Missing github_token input.');
         return null;
     }
 
-    const octokit = getOctokit(myToken);
+    const octokit = getOctokit(github_token);
     return octokit;
 }
 
