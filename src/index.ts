@@ -1,10 +1,10 @@
-const { getOctokit, context } = require('@actions/github');
-const core = require('@actions/core');
+import { getOctokit, context } from '@actions/github';
+import core from '@actions/core';
 
-let octokit = null;
+let octokit: ReturnType<typeof getOctokit> | null = null;
 
 function getOctokitSingleton() {
-    if (octokit) {
+    if (octokit !== null) {
         return octokit;
     }
 
@@ -13,10 +13,10 @@ function getOctokitSingleton() {
     // github_token: ${{ secrets.GITHUB_TOKEN }}
     // https://help.github.com/en/actions/automating-your-workflow-with-github-actions/authenticating-with-the-github_token#about-the-github_token-secret
     const github_token = core.getInput('github_token');
-    if (!github_token) {
-        core.setFailed('Missing github_token input.');
-        return null;
-    }
+    // if (!github_token) {
+    //     core.setFailed('Missing github_token input.');
+    //     return null;
+    // }
 
     return getOctokit(github_token);
 }
@@ -29,17 +29,14 @@ function getOctokitSingleton() {
  * @param {string | undefined} message 
  */
 async function createTag(
-    newTag,
-    createAnnotatedTag,
-    GITHUB_SHA,
-    message = undefined,
+    newTag: string,
+    createAnnotatedTag: boolean,
+    GITHUB_SHA: string,
+    message: string | undefined = undefined,
 ) {
     const octokit = getOctokitSingleton();
 
-    /**
-     * @type {import('@octokit/rest').Response<import('@octokit/rest').GitCreateTagResponse>}
-     */
-    let annotatedTag = undefined;
+    let annotatedTag: Awaited<ReturnType<typeof octokit.rest.git.createTag>> | undefined = undefined;
 
     if (createAnnotatedTag) {
         core.debug(`Creating annotated tag.`);
@@ -54,7 +51,7 @@ async function createTag(
     }
 
     core.debug(`Pushing new tag to the repo.`);
-    await octokit.git.createRef({
+    await octokit.rest.git.createRef({
         ...context.repo,
         ref: `refs/tags/${newTag}`,
         sha: annotatedTag ? annotatedTag.data.sha : GITHUB_SHA,

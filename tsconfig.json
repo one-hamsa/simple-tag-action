@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs", /* Concatenate and emit output to single file. */
+        "outDir": "./out", /* Redirect output structure to the directory. */
+        "rootDir": "./src",
+        "strict": true,
+        "esModuleInterop": true
+    },
+    "exclude": [
+        "node_modules",
+        "**/*.test.ts"
+    ],
+}
