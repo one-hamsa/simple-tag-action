@@ -4,34 +4,34 @@ description: Simple Tagign With Github Octokit
 
 inputs:
   github_token:
-    description: "Github Token"
+    description: Github Token
     required: true
 
   tag:
-    description: "Tag"
+    description: Tag
     required: true
 
   message:
-    description: "Message"
+    description: Message
     required: false
     default: ""
 
   annotated_tag:
-    description: "Annotated Tag"
+    description: Annotated Tag
     required: false
     default: "true"
 
   commit_sha:
-    description: "Commit SHA - default is HEAD"
+    description: Commit SHA - default is HEAD
     required: false
     default: ""
 
 # outputs:
 
 runs:
-  using: "node20"
-  main: "index.js"
+  using: node20
+  main: index.js
 
 branding:
-  icon: "git-merge"
-  color: "purple"
+  icon: git-merge
+  color: purple
