@@ -1,5 +1,5 @@
 import { getOctokit, context } from '@actions/github';
-import core from '@actions/core';
+import * as core from '@actions/core';
 
 let octokit: ReturnType<typeof getOctokit> | null = null;
 
