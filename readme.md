@@ -4,20 +4,23 @@ Simple action to tag commits
 
 ## Build the js bundle and release
 
-Install ncc globally
+Install dependencies
 
 ```bash
-npm i -g @vercel/ncc
+npm install
 ```
 
-build the bundle
+run the build script
 
 ```bash
-ncc build index.js --license licenses.txt
+npm run build
 ```
 
-change the version in package.json and tag
+## Delete and update the version tag
 
 ```bash
-git tag -a v1.0.0 -m "First release"
+git tag -d v1
+git push origin :refs/tags/v1
+git tag v1
+git push origin refs/tags/v1
 ```
