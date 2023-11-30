@@ -30810,8 +30810,7 @@ function getOctokitSingleton() {
         return null;
     }
 
-    const octokit = getOctokit(github_token);
-    return octokit;
+    return getOctokit(github_token);
 }
 
 /**
