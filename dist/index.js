@@ -28966,28 +28966,37 @@ function getOctokitSingleton() {
  *
  * @param {string} newTag new tag string
  * @param {boolean} createAnnotatedTag
- * @param {string} GITHUB_SHA
+ * @param {string} commitSha
  * @param {string | undefined} message
  */
-function createTag(newTag, createAnnotatedTag, GITHUB_SHA, message = undefined) {
+function createTag(newTag, createAnnotatedTag, commitSha, message = undefined) {
     return __awaiter(this, void 0, void 0, function* () {
         const octokit = getOctokitSingleton();
         let annotatedTag = undefined;
         if (createAnnotatedTag) {
             core.debug(`Creating annotated tag.`);
-            annotatedTag = yield octokit.rest.git.createTag(Object.assign(Object.assign({}, github_1.context.repo), { tag: newTag, message: message !== null && message !== void 0 ? message : newTag, object: GITHUB_SHA, type: 'commit' }));
+            annotatedTag = yield octokit.rest.git.createTag(Object.assign(Object.assign({}, github_1.context.repo), { tag: newTag, message: message !== null && message !== void 0 ? message : newTag, object: commitSha, type: 'commit' }));
         }
         core.debug(`Pushing new tag to the repo.`);
-        yield octokit.rest.git.createRef(Object.assign(Object.assign({}, github_1.context.repo), { ref: `refs/tags/${newTag}`, sha: annotatedTag ? annotatedTag.data.sha : GITHUB_SHA }));
+        yield octokit.rest.git.createRef(Object.assign(Object.assign({}, github_1.context.repo), { ref: `refs/tags/${newTag}`, sha: annotatedTag ? annotatedTag.data.sha : commitSha }));
     });
 }
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         const { GITHUB_SHA } = process.env;
-        const commitSha = core.getInput('commit_sha');
-        const commitRef = commitSha || GITHUB_SHA;
-        if (!commitRef) {
-            core.setFailed('Missing commit_sha or GITHUB_SHA.');
+        const commitRef = core.getInput('ref');
+        let commitSha = GITHUB_SHA;
+        if (commitRef) {
+            const octokit = getOctokitSingleton();
+            const { data: refData } = yield octokit.rest.git.getRef(Object.assign(Object.assign({}, github_1.context.repo), { ref: commitRef }));
+            commitSha = refData.object.sha;
+            if (!commitSha) {
+                core.setFailed(`Unable to find sha for ref ${commitRef}`);
+                return;
+            }
+        }
+        else if (!commitSha) {
+            core.setFailed('Missing GITHUB_SHA environment variable and no ref input provided.');
             return;
         }
         const tag_name = core.getInput('tag');
@@ -29003,7 +29012,7 @@ function run() {
         if (!annotated_tag && message) {
             core.warning('Message was provided but annotated tag was not requested.');
         }
-        yield createTag(tag_name, annotated_tag, commitRef, message);
+        yield createTag(tag_name, annotated_tag, commitSha, message);
     });
 }
 run();
