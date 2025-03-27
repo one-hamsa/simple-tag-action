@@ -25,13 +25,13 @@ function getOctokitSingleton() {
  * 
  * @param {string} newTag new tag string
  * @param {boolean} createAnnotatedTag 
- * @param {string} GITHUB_SHA 
+ * @param {string} commitSha 
  * @param {string | undefined} message 
  */
 async function createTag(
     newTag: string,
     createAnnotatedTag: boolean,
-    GITHUB_SHA: string,
+    commitSha: string,
     message: string | undefined = undefined,
 ) {
     const octokit = getOctokitSingleton();
@@ -45,7 +45,7 @@ async function createTag(
             ...context.repo,
             tag: newTag,
             message: message ?? newTag,
-            object: GITHUB_SHA,
+            object: commitSha,
             type: 'commit',
         });
     }
@@ -54,17 +54,33 @@ async function createTag(
     await octokit.rest.git.createRef({
         ...context.repo,
         ref: `refs/tags/${newTag}`,
-        sha: annotatedTag ? annotatedTag.data.sha : GITHUB_SHA,
+        sha: annotatedTag ? annotatedTag.data.sha : commitSha,
     });
 }
 
 async function run() {
     const { GITHUB_SHA } = process.env;
 
-    const commitSha = core.getInput('commit_sha');
-    const commitRef = commitSha || GITHUB_SHA;
-    if (!commitRef) {
-        core.setFailed('Missing commit_sha or GITHUB_SHA.');
+    const commitRef = core.getInput('ref');
+
+    let commitSha = GITHUB_SHA;
+    if (commitRef) {
+        const octokit = getOctokitSingleton();
+
+        const { data: refData } = await octokit.rest.git.getRef({
+            ...context.repo,
+            ref: commitRef,
+        });
+
+        commitSha = refData.object.sha;
+
+        if (!commitSha) {
+            core.setFailed(`Unable to find sha for ref ${commitRef}`);
+            return;
+        }
+    }
+    else if (!commitSha) {
+        core.setFailed('Missing GITHUB_SHA environment variable and no ref input provided.');
         return;
     }
 
@@ -88,7 +104,7 @@ async function run() {
     await createTag(
         tag_name,
         annotated_tag,
-        commitRef,
+        commitSha,
         message
     );
 }

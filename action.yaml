@@ -21,8 +21,8 @@ inputs:
     required: false
     default: "true"
 
-  commit_sha:
-    description: Commit SHA - default is HEAD
+  ref:
+    description: Commit reference to tag - default is HEAD
     required: false
     default: ""
 
